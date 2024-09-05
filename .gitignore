@@ -1,6 +1,14 @@
 # Prerequisites
 *.d
 
+# Documentos
+elige-tu-propia-aventura-01-la-cueva-del-tiempo.pdf
+practico1_2024.pdf
+imagen_ascii.c
+imagen_ascii.c.save-failed
+imagen_ascii.txt
+
+
 # Object files
 *.o
 *.ko
