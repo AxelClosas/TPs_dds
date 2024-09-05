@@ -12,11 +12,11 @@ int main (){
 
 
 
-	printf("Antes de adentrarte en esta historia, escribe tu nombre de heroe que protagonizar· Èsta aventura. \n");
-	printf("El destino de este personaje estar· en tus manos, y tus decisiones podrian llevarlo a la gloria... o a la perdiciÛn...");
-	printf("\n\n\t- ")
+	printf("Antes de adentrarte en esta historia, escribe tu nombre de heroe que protagonizar√° √©sta aventura. \n");
+	printf("El destino de este personaje estar√° en tus manos, y tus decisiones podrian llevarlo a la gloria... o a la perdici√≥n...");
+	printf("\n\n\t- Nuevo Mensaje")
 	scanf("%s", &nombre);
-	printf("%s, un joven de origen humilde, caminaba por un denso bosque en un dÌa en el que las nubes negras cubrÌan el cielo.\n", nombre);
+	printf("%s, un joven de origen humilde, caminaba por un denso bosque en un d√≠a en el que las nubes negras cubr√≠an el cielo.\n", nombre);
 
 	printf("%s se encuentra en cualquier lado y tienes que elegir uno de los siguientes caminos 1 2 o 3", nombre);
 	scanf("%i", &heroe);
