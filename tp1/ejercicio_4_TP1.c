@@ -12,8 +12,9 @@ int main (){
 
 
 
-	printf("Antes de adentrarte en esta historia, elige sabiamente el nombre del héroe que protagonizará aventura. \n");
-	printf("El destino de este personaje estará en tus manos, y tus decisiones podrian llevarlo a la gloria... o a la perdición.");
+	printf("Antes de adentrarte en esta historia, escribe tu nombre de heroe que protagonizará ésta aventura. \n");
+	printf("El destino de este personaje estará en tus manos, y tus decisiones podrian llevarlo a la gloria... o a la perdición...");
+	printf("\n\n\t- ")
 	scanf("%s", &nombre);
 	printf("%s, un joven de origen humilde, caminaba por un denso bosque en un día en el que las nubes negras cubrían el cielo.\n", nombre);
 
