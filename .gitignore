@@ -7,6 +7,8 @@ practico1_2024.pdf
 imagen_ascii.c
 imagen_ascii.c.save-failed
 imagen_ascii.txt
+*.exe
+*.o
 
 
 # Object files
