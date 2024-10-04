@@ -2,12 +2,13 @@
 #include <string.h>
 
 void eliminar_repetidas(char palabra_uno[], char nueva[]);
-void contar_coincidencias(char palabra[], char palabra_dos[], char cuenta[]);
+void contar_coincidencias(char palabra[], char palabra_dos[], int cuenta[]);
+void mostrar_coincidencias(char palabra[], int cuenta[]);
 
 void main()
 {
     char palabra_uno[35], palabra_dos[35], nueva[30];
-    char cuenta[35] = {0};
+    int cuenta[35] = {0};
     int i;
 
     printf("Ingresa la palabra uno: ");
@@ -35,12 +36,22 @@ void main()
 
     printf("Las coincidencias son las siguientes...\n\n");
 
-    for ( i = 0; nueva[i] != '\0'; i++)
+    mostrar_coincidencias(nueva, cuenta);
+    
+}
+
+
+void mostrar_coincidencias(char palabra[], int cuenta[])
+{
+    int i;
+
+    for ( i = 0; palabra[i] != '\0'; i++)
     {
-        printf("%c = %d", nueva[i], cuenta[i]);
+        printf("%c = %d", palabra[i], cuenta[i]);
         printf("\n");
     }
 }
+
 
 void eliminar_repetidas(char palabra_uno[], char nueva[])
 {
@@ -78,7 +89,7 @@ void eliminar_repetidas(char palabra_uno[], char nueva[])
 }
 
 
-void contar_coincidencias(char palabra[], char palabra_dos[], char cuenta[])
+void contar_coincidencias(char palabra[], char palabra_dos[], int cuenta[])
 {
     int i = 0;
     int j;
