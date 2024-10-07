@@ -17,18 +17,12 @@ void ubicar_fichas(TABLERO *jug);
 
 void main()
 {
-    int i, j;
-
 
     TABLERO J1 = {1, {{0}} };
     TABLERO J2 = {2, {{0}} };
 
     ubicar_fichas(&J1);
     ubicar_fichas(&J2);
-
-
-
-    printf("\n\n");
 
 
 }
