@@ -16,30 +16,20 @@ typedef struct tab
 
 void pintar_tablero(TABLERO *jug);
 void ubicar_fichas(TABLERO *jug);
-void iniciar_juego(TABLERO *jug1, TABLERO *jug2);
+void jugar(TABLERO *jug1, TABLERO *jug2);
 
 
 void main()
 {
-    int jugar;
 
+    TABLERO J1 = {1, {{0}}, 3 };
+    TABLERO J2 = {2, {{0}}, 3 };
+    ubicar_fichas(&J1);
+    ubicar_fichas(&J2);
 
-    do
-    {
-        TABLERO J1 = {1, {{0}}, 3 };
-        TABLERO J2 = {2, {{0}}, 3 };
-        ubicar_fichas(&J1);
-        ubicar_fichas(&J2);
+    system("CLS");
 
-        system("PAUSE");
-        system("CLS");
-
-
-        iniciar_juego(&J1, &J2);
-
-        printf("Volver a jugar?\n\n\t1. SI\n\t0. NO\n\n\tOpcion: ");
-        scanf("%i", &jugar);
-    } while (jugar == 1);
+    jugar(&J1, &J2);
 
 }
 
@@ -56,51 +46,114 @@ int atacar_coordenada(TABLERO *jug, int fila, int columna)
 {
     int i, j;
     int golpe;
+    int fila_r = fila - 1;
+    int columna_r = columna - 1;
 
     for (i=0; i < T; i++)
         for (j=0; j < T; j++)
         {
-            if (jug->tablero[fila - 1][columna - 1] == 1)
+            if ( (i == fila_r) && (j == columna_r) )
             {
-                jug->tablero[fila - 1][columna - 1] = 0;
-                golpe = 1;
-            } else
-            {
-                golpe = 0;
+                if (jug->tablero[i][j] == 1)
+                {
+                    jug->tablero[i][j] = 0;
+                    golpe = 1;
+                }
+                else
+                    golpe = 0;
             }
         }
 
     return golpe;
 }
 
-void iniciar_juego(TABLERO *jug1, TABLERO *jug2)
-{
-    int turno_inicial = turno_aleatorio();
 
+void jugar(TABLERO *jug1, TABLERO *jug2)
+{
     int fila, columna, golpe;
 
-    printf("Jugador [%i]. Ingresa tus coordenadas de ataque...\n", turno_inicial);
-    printf("Fila: ");
-    scanf("%i", &fila);
+    int turno = turno_aleatorio();
 
-    printf("\n");
-
-    printf("Columna: ");
-    scanf("%i", &columna);
+    TABLERO referencia = {0, {{0}}, 0};
 
     do
     {
-        if (turno_inicial == 1)
+
+        printf("Vidas Jugador [%i]: %i\n",jug1->jugador, jug1->vidas);
+        printf("Vidas Jugador [%i]: %i\n",jug2->jugador, jug2->vidas);
+
+        printf("\n\n");
+
+        printf("\n\n******** TABLERO DE REFERENCIA ********\n\n");
+
+        pintar_tablero(&referencia);
+
+        printf("\n\n");
+
+        printf("Jugador [%i]. Ingresa tus coordenadas de ataque...", turno);
+        printf("\n\n");
+        printf("Fila: ");
+        scanf("%i", &fila);
+
+        printf("\n");
+
+        printf("Columna: ");
+        scanf("%i", &columna);
+
+        if (turno == 1)
         {
+
             golpe = atacar_coordenada(jug2, fila, columna);
 
+            if (golpe)
+            {
+                jug2->vidas -= 1;
+                if (jug2->vidas != 0)
+                {
+                    puts("Has acertado!, puedes seguir atacando");
+                    turno = 1;
+                }
+            }
+            else
+            {
+                puts("No has acertado!");
+                turno = 2;
+            }
         }
-        else{
+        else
+        {
+            golpe = atacar_coordenada(jug1, fila, columna);
+            if (golpe)
+            {
+                jug1->vidas -= 1;
+                if (jug1->vidas != 0)
+                {
+                    puts("Has acertado!, puedes seguir atacando");
+                    turno = 2;
+                }
+            }
+            else
+            {
+                puts("No has acertado!");
+                turno = 1;
+            }
+        }
+        system("PAUSE");
+        system("CLS");
 
-        }
-    } while ( (jug1->vidas == 0) || (jug2->vidas == 0) );
+    } while ( (jug1->vidas != 0) && (jug2->vidas != 0) );
+
+    printf("\n\n");
+
+    if (jug1->vidas == 0)
+        printf("El Jugador [%i] ha perdido todas sus vidas. Felicidades Jugador [%i]!.", jug1->jugador, jug2->jugador);
+    else
+        printf("El Jugador [%i] ha perdido todas sus vidas. Felicidades Jugador [%i]!.", jug2->jugador, jug1->jugador);
+
+    printf("\n\n");
 
 }
+
 
 
 void ubicar_fichas(TABLERO *jug)
