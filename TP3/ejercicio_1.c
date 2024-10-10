@@ -7,37 +7,47 @@ void mostrar_coincidencias(char palabra[], int cuenta[]);
 
 void main()
 {
+
     char palabra_uno[35], palabra_dos[35], nueva[30];
-    int cuenta[35] = {0};
-    int i;
 
-    printf("Ingresa la palabra uno: ");
-    gets(palabra_uno);
+    int i = 0;
 
-    printf("\n");
-    printf("Ingresa la palabra dos: ");
-    gets(palabra_dos);
+    while (i < 3)
+    {
+        int cuenta[35] = {0};
 
-    eliminar_repetidas(palabra_uno, nueva);
+        printf("Ingresa la palabra uno: ");
+        gets(palabra_uno);
+        fflush(stdin);
 
-    printf("Palabra uno: %s", palabra_uno);
+        printf("\n");
+        printf("Ingresa la palabra dos: ");
+        gets(palabra_dos);
+        fflush(stdin);
 
-    printf("\n");
+        eliminar_repetidas(palabra_uno, nueva);
 
-    printf("Palabra dos: %s", palabra_dos);
+        printf("Palabra uno: %s", palabra_uno);
 
-    printf("\n");
+        printf("\n");
 
-    printf("Palabra uno sin repetidas: %s", nueva);
+        printf("Palabra dos: %s", palabra_dos);
 
-    contar_coincidencias(nueva, palabra_dos, cuenta);
+        printf("\n");
 
-    printf("\n\n");
+        printf("Palabra uno sin repetidas: %s", nueva);
 
-    printf("Las coincidencias son las siguientes...\n\n");
+        contar_coincidencias(nueva, palabra_dos, cuenta);
 
-    mostrar_coincidencias(nueva, cuenta);
-    
+        printf("\n\n");
+
+        printf("Las coincidencias son las siguientes...\n\n");
+
+        mostrar_coincidencias(nueva, cuenta);
+
+        i++;
+    }
+
 }
 
 

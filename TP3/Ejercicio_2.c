@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define T 5
 #define cant_fichas 3
+
+#define T 5
 
 typedef struct tab
 {
@@ -124,13 +125,13 @@ void ubicar_fichas(TABLERO *jug)
             printf("\n");
             printf("Columna: ");
             scanf("%d", &columna);
-            if ((fila < 1 || fila > 5) || (columna < 1 || columna > 5))
+            if ((fila < 1 || fila > T) || (columna < 1 || columna > T))
             {
                 printf("Posiciones fuera de rango... Vuelve a ingresarlas...");
                 printf("\n\n");
             }
 
-        } while ((fila < 1 || fila > 5) || (columna < 1 || columna > 5));
+        } while ((fila < 1 || fila > T) || (columna < 1 || columna > T ));
 
         for (j = 0; j < T; j++)
             for (k = 0; k < T; k++)
