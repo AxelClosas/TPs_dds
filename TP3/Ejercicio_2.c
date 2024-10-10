@@ -18,6 +18,8 @@ typedef struct tab
 void pintar_tablero(TABLERO *jug);
 void ubicar_fichas(TABLERO *jug);
 void jugar(TABLERO *jug1, TABLERO *jug2);
+int atacar_coordenada(TABLERO *jug, int fila, int columna);
+int turno_aleatorio()
 
 
 void main()

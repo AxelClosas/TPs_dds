@@ -12,6 +12,8 @@ void main()
 
     int i = 0;
 
+
+
     while (i < 3)
     {
         int cuenta[35] = {0};
