@@ -19,14 +19,14 @@ void pintar_tablero(TABLERO *jug);
 void ubicar_fichas(TABLERO *jug);
 void jugar(TABLERO *jug1, TABLERO *jug2);
 int atacar_coordenada(TABLERO *jug, int fila, int columna);
-int turno_aleatorio()
+int turno_aleatorio();
 
 
 void main()
 {
-
     TABLERO J1 = {1, {{0}}, 3 };
     TABLERO J2 = {2, {{0}}, 3 };
+
     ubicar_fichas(&J1);
     ubicar_fichas(&J2);
 
@@ -149,9 +149,9 @@ void jugar(TABLERO *jug1, TABLERO *jug2)
     printf("\n\n");
 
     if (jug1->vidas == 0)
-        printf("El Jugador [%i] ha perdido todas sus vidas. Felicidades Jugador [%i]!.", jug1->jugador, jug2->jugador);
+        printf("El Jugador [%i] ha perdido todas sus vidas. Felicidades Jugador [%i]!.", jug1->jugador, jug2->jugador); // Poner simbolo de salida por pantalla y dentro escribir "mensaje resultado"
     else
-        printf("El Jugador [%i] ha perdido todas sus vidas. Felicidades Jugador [%i]!.", jug2->jugador, jug1->jugador);
+        printf("El Jugador [%i] ha perdido todas sus vidas. Felicidades Jugador [%i]!.", jug2->jugador, jug1->jugador); // Poner simbolo de salida por pantalla y dentro escribir "mensaje resultado"
 
     printf("\n\n");
 
