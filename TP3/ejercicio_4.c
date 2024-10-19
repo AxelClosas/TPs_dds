@@ -1,5 +1,4 @@
 #include <stdio.h>
-#define CANT_PROD 3
 
 /*
 
@@ -21,78 +20,95 @@ typedef struct prod
 
 }PRODUCTO;
 
-void ingresar_productos(PRODUCTO *productos[], int cant_prod);
-void listar_productos(PRODUCTO *productos[], int cant_prod);
+void ingresar_productos(PRODUCTO productos[], int cant_elementos);
+void ord_burbuja(PRODUCTO productos[], int cant_elementos);
+void listar_productos(PRODUCTO productos[], int cant_elementos);
 
 
 void main()
 {
-    PRODUCTO productos[CANT_PROD];
+    PRODUCTO productos[3];
 
-    ingresar_productos(productos, CANT_PROD);
+    ingresar_productos(productos, 3);
 
-    listar_productos(productos, CANT_PROD);
+    listar_productos(productos, 3);
 
 }
 
-void ingresar_productos(PRODUCTO *productos[], int cant_prod)
+void ingresar_productos(PRODUCTO productos[], int cant_elementos)
 {
     int i;
 
-    for (i=0; i < cant_prod; i++)
+    for (i=0; i < cant_elementos; i++)
     {
-        printf("Producto [%i]", i+1);
+        printf("Producto (%i)\n\n", i+1);
+
+        printf("Codigo:\n");
+        scanf("%i", &productos[i].cod_producto);
+        fflush(stdin);
         printf("\n");
 
-        printf("Código: ");
-        scanf("%i", &productos[i]->cod_producto);
+        printf("Detalle:\n");
+        gets(productos[i].detalle);
+        fflush(stdin);
         printf("\n");
-        fflush(stdin);
 
-        puts("Detalle: ");
-        gets(productos[i]->detalle);
+        printf("Precio:\n");
+        scanf("%f", &productos[i].precio);
         fflush(stdin);
-
-        printf("Precio: ");
-        scanf("%f", &productos[i]->precio);
         printf("\n");
-        fflush(stdin);
 
-        printf("Stock: ");
-        scanf("%i", &productos[i]->stock);
+        printf("Stock:\n");
+        scanf("%i", &productos[i].stock);
+        fflush(stdin);
         printf("\n");
-        fflush(stdin);
 
-        puts("Ubicación:");
-        gets(productos[i]->ubicacion);
+        printf("Ubicacion:\n");
+        scanf("%s", productos[i].ubicacion);
         fflush(stdin);
+        printf("\n\n");
 
     }
 }
 
-void listar_productos(PRODUCTO productos[], int cant_prod)
+void listar_productos(PRODUCTO productos[], int cant_elementos)
 {
+    ord_burbuja(productos, cant_elementos);
+
     int i;
-
-    for (i = 0; i < cant_prod; i++)
+    for (i=0; i < cant_elementos; i++)
     {
-        printf("Producto [%i]", i+1);
-        printf("\n");
+        printf("Producto (%i)\n", i+1);
 
-        printf("Código [%i] ", productos[i]->cod_producto);
-        printf("\n");
+        printf("[Codigo]: %i\n", productos[i].cod_producto);
+        printf("[Detalle]:%s\n", productos[i].detalle);
+        printf("[Precio] %.2f\n", productos[i].precio);
+        printf("[Stock]: %i\n", productos[i].stock);
+        printf("[Ubicacion]: %s\n", productos[i].ubicacion);
 
-        puts("Detalle: ");
-        puts(productos[i]->detalle);
+    }
 
-        printf("Precio: %.2f", productos[i]->precio);
-        printf("\n");
+}
 
-        printf("Stock: %i", productos[i]->stock);
-        printf("\n");
+void ord_burbuja(PRODUCTO productos[], int cant_elementos)
+{
+    int pasada;
+    int j;
+    int interruptor = 1;
 
-        puts("Ubicación:");
-        puts(productos[i]->ubicacion);
 
+    for (pasada=0; pasada < cant_elementos - 1 && interruptor; pasada++)
+    {
+        interruptor = 0;
+        for (j=0; j < cant_elementos - pasada - 1; j++)
+        {
+            if (productos[j].cod_producto > productos[j+1].cod_producto)
+            {
+                PRODUCTO aux = productos[j];
+                productos[j] = productos[j+1];
+                productos[j+1] = aux;
+                interruptor = 1;
+            }
+        }
     }
 }
