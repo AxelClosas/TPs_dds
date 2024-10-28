@@ -47,7 +47,7 @@ void guardar_nombre()
     while (ingresar != 0)
     {
         listado = fopen("listado.txt", "at");
-        char nombre[30] = {'\0'};
+        char nombre[200] = {'\0'};
         puts("Nombre:");
         fflush(stdin);
         gets(nombre);
@@ -72,12 +72,13 @@ void guardar_apellido()
     while (ingresar != 0)
     {
         listado = fopen("listado.txt", "at");
-        char apellido[30] = {'\0'};
+        char apellido[200] = {'\0'};
         puts("Apellido:");
         fflush(stdin);
         gets(apellido);
 
         // Condición de cierre ingresar apellidos
+
         if (verificar_campo(apellido))
             fprintf(listado, "%s\n", apellido);
 
@@ -95,5 +96,5 @@ int verificar_campo(char cadena[])
     /* Operador ternario. Equivalente al If-else.
         variable = (condicion) ? asigar_valor_verdadero : asignar_valor_falso;
     */
-    return ( (strlen(cadena)) ? 1 : 0 );
+    return ( ( strlen(cadena) ) ? 1 : 0 );
 }
