@@ -42,6 +42,26 @@ FILE *conexion_mesas()
     return arch;
 }
 
+void linea_vacia_30_caracteres()
+{
+    int i;
+    printf("%c",186);
+    for (i=0; i < 28;i++)
+        printf(" ");
+    printf("%c",186);
+    printf("\n");
+}
+
+void divisor_30_caracteres()
+{
+    int i;
+    printf("%c",186);
+    for (i=0; i < 28;i++)
+        printf("-");
+    printf("%c",186);
+    printf("\n");
+}
+
 void nuevo_partido();
 long int buscar_id(long int id, FILE *arch);
 void listar_partidos();
@@ -57,14 +77,27 @@ int main()
     int cant_mesas;
     int continuar;
     int op_salir = 0;
+    int i;
     do
     {
         system("cls");
         //176: ░, 200: ╚, 201: ╔, 205: ═, 186: ║, 187: ╗, 188: ╝
+
+        // Linea superior
+        printf("%c",201);
+        for (i=0; i<28; i++)
+            printf("%c", 205);
+        printf("%c",187);
+        printf("\n");
+
         // PARTIDOS
-        printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 201, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 187);
-        printf("%c%c PARTIDOS %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c", 186, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176);
-        printf("%c\n", 186);
+        printf("%c",186);
+        printf("%c",176);
+        printf(" PARTIDOS ",176);
+        for (i=0; i<17; i++)
+            printf("%c", 176);
+        printf("%c",186);
+        printf("\n");
 
         // LISTA DE OPCIONES
         printf("%c[1] Cargar partidos         %c\n", 186, 186);
@@ -72,22 +105,33 @@ int main()
         printf("%c                            %c\n", 186, 186); // Espacio vacio de 30 caracteres
 
         // MESAS
-        printf("%c%c ESCRUTINIO %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 186, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 186);
+        printf("%c",186);
+        printf("%c",176);
+        printf(" MESAS ",176);
+        for (i=0; i<20; i++)
+            printf("%c", 176);
+        printf("%c",186);
+        printf("\n");
+
+//        printf("%c%c MESAS %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 186, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 176, 186);
         // LISTA DE OPCIONES
         printf("%c[3] Crear Mesas             %c\n", 186, 186);
         printf("%c[4] Listar Mesas            %c\n", 186, 186);
         printf("%c[5] Contabilizar votos      %c\n", 186, 186);
-        printf("%c                            %c\n", 186, 186); // Espacio vacio de 30 caracteres
 
+        linea_vacia_30_caracteres();
+        linea_vacia_30_caracteres();
 
-        printf("%c                            %c\n", 186, 186); // Espacio vacio de 30 caracteres
-        printf("%c                            %c\n", 186, 186); // Espacio vacio de 30 caracteres
-        printf("%c----------------------------%c\n", 186, 186); // Espacio vacio de 30 caracteres
-
+        divisor_30_caracteres();
         printf("%c[0] SALIR                   %c\n", 186, 186); // Espacio vacio de 30 caracteres
 
-        printf("%c                            %c\n", 186, 186); // Espacio vacio de 30 caracteres
-        printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", 200, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 188);
+        linea_vacia_30_caracteres();
+
+        // Linea inferior
+        printf("%c",200);
+        for (i=0; i<28; i++)
+            printf("%c", 205);
+        printf("%c",188);
 
         printf("\n\n>> ");
         scanf("%i", &op_menu);
