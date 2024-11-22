@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #define maxPartidos 2
-
+// Cambio
 int pass_admin= 9898;
 
 typedef struct Partido
