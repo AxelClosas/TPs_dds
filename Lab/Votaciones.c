@@ -38,6 +38,7 @@ int limpiarMesa(); // OK
 int Baja_Mesa(); // OK
 int escribirMesa(); // Falta agregar ordenamiento por inserción
 int info_Mesa(); // OK
+int ordenar_mesas();
 
 int menu1()
 {
@@ -295,7 +296,6 @@ int modificarPar()
     }
     do
     {
-        listarPartidos();
         printf("\nIngrese el codigo del partido que desea modifcar: ");
         fflush(stdin);
         scanf("%d",&cod_part);
@@ -347,7 +347,7 @@ int modificarPar()
         printf("\nQuieres modificar otro partido SI/1 NO/0\nOpcion: ");
         fflush(stdin);
         scanf("%d",&op);
-
+        /* modificar_mesa */
         fseek(ptr,0,SEEK_END);
         int cant_partidos = ftell(ptr)/sizeof(Partidos);
         if (flag == 1)
@@ -843,3 +843,61 @@ int info_Mesa()
     return 0;
 }
 
+int ordenar_mesas()
+{
+    int long i,j,index;
+    mesas mesa;
+    FILE*ptr_mesas = fopen("Mesas.dat","r+b");
+    if (ptr_mesas == NULL)
+    {
+        puts("error de apertura");
+        exit(-1);
+    }
+
+    fseek(ptr_mesas,0,SEEK_END);
+    int cant_mesas = ftell(ptr_mesas)/sizeof(mesas);
+    fseek(ptr_mesas,0,SEEK_SET);
+    if (cant_mesas <= 1)
+    {
+        puts("Mesas insuficientes para ordenar");
+        return -1;
+    }
+    mesas *aux = (mesas*)malloc(cant_mesas*sizeof(mesas));
+    if (aux == NULL)
+    {
+        puts("error al asignar memoria");
+        return -1;
+    }
+    for (i=0;i<cant_mesas;i++)
+    {
+        int falla = fread(&aux[i],sizeof(mesas),1,ptr_mesas);
+        if (falla != 1)
+        {
+            free(aux);
+            fclose(ptr_mesas);
+            puts("error de lectura");
+            exit(-1);
+        }
+    }
+    for(i=1;i<cant_mesas;i++)
+    {
+        index = aux[i].nroMesa;
+        j = i - 1;
+        while(j >= 0 && aux[j].nroMesa > index)
+        {
+            aux[j+1].nroMesa = aux[j].nroMesa;
+            j--;
+        }
+        aux[j+1].nroMesa = index;
+    }
+    fseek(ptr_mesas,0,SEEK_SET);
+    for (i=0;i<cant_mesas;i++)
+    {
+        fwrite(&aux[i],sizeof(mesas),1,ptr_mesas);
+    }
+
+
+
+    fclose(ptr_mesas);
+    free(aux);
+}
