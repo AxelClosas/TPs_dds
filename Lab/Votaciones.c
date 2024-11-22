@@ -58,7 +58,7 @@ int menu1()
             fflush(stdin);
             scanf("%d",&opcion);
 
-            if ((opcion == 1) || (opcion == 4))
+            if ((opcion == 1) || (opcion == 4) || (opcion == 3))
             {   printf("Contrase%ca\n>> ",164);
                 fflush(stdin);
                 scanf("%i", &pass);
@@ -270,11 +270,22 @@ int modificarPar()
         Verificar que existan mesas
         Cuando se modifiqué el nombre (al final), recorrer el archivo Mesas.dat y modificar cada
     */
-
+    int flag = 0;
+    mesas mesa;
     Partidos par;
     long int cod_part;
     int op;
     int op1;
+    FILE*ptr_mesas = fopen("Mesas.dat","r+b");
+    if (ptr_mesas == NULL)
+    {
+        puts("paso 1");
+        flag = 0;
+    }
+    else
+        puts("paso 2");
+        flag = 1;
+
     FILE*ptr = fopen("Partidos.dat","r+b");
     if (ptr == NULL)
     {
@@ -284,6 +295,7 @@ int modificarPar()
     }
     do
     {
+        listarPartidos();
         printf("\nIngrese el codigo del partido que desea modifcar: ");
         fflush(stdin);
         scanf("%d",&cod_part);
@@ -335,10 +347,36 @@ int modificarPar()
         printf("\nQuieres modificar otro partido SI/1 NO/0\nOpcion: ");
         fflush(stdin);
         scanf("%d",&op);
-    }while(op == 1);
 
+        fseek(ptr,0,SEEK_END);
+        int cant_partidos = ftell(ptr)/sizeof(Partidos);
+        if (flag == 1)
+        {
+           fseek(ptr_mesas,0,SEEK_SET);
+           falla = fread(&mesa,sizeof(mesas),1,ptr_mesas);
+           if (falla != 1)
+           {
+               puts("error de lectura");
+               exit(-1);
+           }
+           while(!feof(ptr_mesas))
+           {
+               for (int i=0;i<cant_partidos;i++)
+               {
+                   if (cod_part == mesa.par[i].codigo)
+                   {
+                       strcpy(mesa.par[i].nombrePartido,par.nombrePartido);
+                   }
+               }
+               fread(&mesa,sizeof(mesas),1,ptr_mesas);
+           }
+           fseek(ptr_mesas,-sizeof(mesas),SEEK_CUR);
+           falla = fwrite(&mesa,sizeof(mesas),1,ptr_mesas);
+           fflush(ptr_mesas);
+        }
+    }while(op == 1);
     fclose(ptr);
-    return 0;
+    fclose(ptr_mesas);
 }
 
 int removerPartido()
