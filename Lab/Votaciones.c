@@ -254,9 +254,12 @@ int listarPartidos ()
     fread(&par,sizeof(Partidos),1,pf);
     while(!feof(pf))
     {
-        printf("\nCodigo: %d",par.codigo);
-        printf("\nNombre del Partido: %s",par.nombrePartido);
-        fread(&par,sizeof(Partidos),1,pf);
+        if (par.Borrado != 1)
+        {
+            printf("\nCodigo: %d",par.codigo);
+            printf("\nNombre del Partido: %s",par.nombrePartido);
+            fread(&par,sizeof(Partidos),1,pf);
+        }
     }
     printf("\n");
     system("pause");
@@ -671,7 +674,7 @@ int escribirMesa()
     printf("\nIngrese la cantidad de votos impugnados: ");
     fflush(stdin);
     scanf("%ld",&mesa.votos_impug);
-
+    system("pause");
     accum += mesa.votos_blanco;
     accum += mesa.votos_impug;
 
@@ -895,8 +898,6 @@ int ordenar_mesas()
     {
         fwrite(&aux[i],sizeof(mesas),1,ptr_mesas);
     }
-
-
 
     fclose(ptr_mesas);
     free(aux);
