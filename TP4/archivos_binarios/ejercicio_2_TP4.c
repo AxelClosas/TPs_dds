@@ -168,20 +168,24 @@ int guardar_archivo(Beneficiarios reg)
 void ingresos_benef()
 {
     Beneficiarios reg;
+
     FILE *arch = conexion();
     if (arch == NULL) return 1;
 
-    fseek(arch, 0, SEEK_SET); // Coloca el puntero al inicio del archivo
     system("cls");
     printf("Nombre\t\tDNI\n");
 
-    fread(&reg, sizeof(Beneficiarios), 1, arch);
+    fseek(arch, 0, SEEK_SET); // Coloca el puntero al inicio del archivo
+    // BENEFICIARIOS BENEFICIARIOS
 
+    fread(&reg, sizeof(Beneficiarios), 1, arch);
     // feof() retorna un valor distinto de 0 cuando se lee el fin de archivo.
     while (!feof(arch))
     {
         if (reg.ingresos >= 2500 && reg.sexo == 'M')
             printf("%s\t\t%ld\n", reg.nombre, reg.documento);
+
+
         fread(&reg, sizeof(Beneficiarios), 1, arch);
     }
     printf("\n\n");
