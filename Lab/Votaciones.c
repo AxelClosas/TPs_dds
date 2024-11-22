@@ -644,11 +644,9 @@ int escribirMesa()
     }
     /* Info de mesas */
     /* Ingreso de votos */
-    system("pause");
     printf("\nIngrese la cantidad de votos de cada partido\n ");
     for (i =0; i < cant_par; i++)
     {
-        system("pause");
         int votos_presi, votos_gob;
 
         printf("Partido [%li]\n", mesa.par[i].codigo);
@@ -666,7 +664,6 @@ int escribirMesa()
 
         accum += mesa.par[i].cant_votos_presi;
         accum += mesa.par[i].cant_votos_gober;
-        system("pause");
     }
     printf("\nIngrese la cantidad de votos en blanco: ");
     fflush(stdin);
@@ -684,9 +681,9 @@ int escribirMesa()
     fseek(ptr_M,0,SEEK_END);
     fwrite(&mesa,sizeof(mesas),1,ptr_M);
     fflush(ptr_M);
-
     fclose(ptr_M);
     fclose(ptr_P);
+    ordenar_mesas();
 
     return 0;
 }
