@@ -2,7 +2,8 @@
 *.d
 *.rar
 *.pdf
-*.dat
+Mesas.dat
+Partidos.dat
 
 # Documentos
 elige-tu-propia-aventura-01-la-cueva-del-tiempo.pdf
