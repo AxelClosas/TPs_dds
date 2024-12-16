@@ -196,19 +196,28 @@ int altaPartido()
         puts("error al abrir el archivo");
         return -1;
     }
+    unsigned long int cod = keyPartido(ptr, nuevo.codigo);
     do
     {
-        if (keyPartido(ptr, nuevo.codigo) != -1)
+        if (keyPartido(ptr, nuevo.codigo) != -1 || nuevo.codigo == 0)
         {
             system("cls");
-            printf("ID existente.\n");
+            if (nuevo.codigo == 0)
+                printf("\nNo se permiten partidos con el codigo 0.\n");
+            else
+                printf("ID existente.\n");
         }
         printf("ID >> ");
         fflush(stdin);
         scanf("%li", &nuevo.codigo);
         printf("\n");
 
-    }while( keyPartido(ptr, nuevo.codigo) != -1);
+        if(nuevo.codigo == 0)
+            cod = 1;
+        else
+            cod = keyPartido(ptr, nuevo.codigo);
+
+    }while( cod != -1 );
 
     printf("Nombre (max. %i caracteres)\n>> ", sizeof(nuevo.nombrePartido));
     fflush(stdin);
@@ -555,6 +564,7 @@ int escribirMesa()
         printf("\nDebe existir al menos un partido para crear la mesa\n");
         return -1;
     }
+
     fseek(ptr_P,0,SEEK_SET);
     int falla = fread(&par,sizeof(Partidos),1,ptr_P);
     if (falla != 1)
@@ -566,21 +576,27 @@ int escribirMesa()
         i++;
         fread(&par,sizeof(Partidos),1,ptr_P);
     }
+    int k;
+    for (k=i; k < maxPartidos; k++)
+        mesa.par[k].Borrado = 1;
+
     /* Ingreso de votos */
-    printf("\nIngrese la cantidad de votos de cada partido\n ");
-    printf("\nFormulario de ingreso de votos\n");
+    system("CLS");
+    printf("FORMULARIO DE INGRESO DE VOTOS\n");
 
     for (i =0; i < cant_par; i++)
     {   int votos_presi, votos_gob;
         printf("\nID Partido\t\tNombre\n");
-        printf("[%li]\t\t%s\n", mesa.par[i].codigo, mesa.par[i].nombrePartido);
+        printf("\t[%li]\t\t%s", mesa.par[i].codigo, mesa.par[i].nombrePartido);
+//        fflush(stdin);
+//        scanf("%i\t%i", &votos_presi, &votos_gob);
 
         printf("\nVotos a Presidente: ");
         fflush(stdin);
         scanf("%i", &votos_presi);
         mesa.par[i].cant_votos_presi = votos_presi;
 
-        printf("\nVotos a Gobernador: ");
+        printf("Votos a Gobernador: ");
         fflush(stdin);
         scanf("%i", &votos_gob);
         mesa.par[i].cant_votos_gober = votos_gob;
@@ -832,7 +848,7 @@ int Resultados() {
         for (i=0; i < maxPartidos; i++)
         {
             Partidos aux = reg.par[i];
-            printf("%li", aux.codigo);
+            printf("%li\n", aux.codigo);
 
         }
         fread(&reg, sizeof(mesas), 1, ptr_mesas);
