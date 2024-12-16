@@ -258,7 +258,6 @@ int menu()
     scanf("%i", &op_menu);
     return op_menu;
 }
-
 void nuevo_partido()
 {
     system("cls");

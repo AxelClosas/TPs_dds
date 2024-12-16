@@ -1,16 +1,20 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#define maxPartidos 4
-// Cambio
+#include <unistd.h>
+#define maxPartidos 100
+
+
+
 int pass_admin= 9898;
-typedef struct Partido
+typedef struct Partidos
 {   int codigo;
     char nombrePartido[100];
     unsigned long int cant_votos_presi;
     unsigned long int cant_votos_gober;
     int Borrado;
 }Partidos;
+
 typedef struct Mesa
 {   long int nroMesa;
     unsigned long int votos_impug;
@@ -19,6 +23,7 @@ typedef struct Mesa
     Partidos par[maxPartidos];
     int borrado;
 }mesas;
+
 // partidos
 int altaPartido(); // OK
 long keyPartido(FILE*pf,int key); // OK
@@ -35,10 +40,9 @@ int escribirMesa(); // Falta agregar ordenamiento por inserción
 int actualizar_mesas();
 int info_Mesa(); // OK
 int ordenar_mesas();
+
 int Resultados();
-long int total_votos_presidente_general();
-long int total_votos_gobernador_general();
-long int total_votos_general();
+
 int menu1()
 {   int opcion;
     int pass;
@@ -103,13 +107,20 @@ int menu2()
     return opcion;
 }
 int main()
-{   int opcion,op1;
+{
+    int opcion,op1;
+    int otro_part;
     do
     {   opcion = menu1();
         switch (opcion)
         {
         case 1:
-            altaPartido();
+            do
+            {
+                altaPartido();
+                printf("\nCargar otro partido? [1.SI / 0.NO]\n\n>> ");
+                scanf("%i", &otro_part);
+            }while(otro_part);
             break;
         case 2:
             listarPartidos();
@@ -148,6 +159,7 @@ int main()
                     break;
                 default :
                     printf("\nOpcion invalida");
+                    system("pause");
                     break;
                 }
             }while(op1 != 7);
@@ -157,6 +169,7 @@ int main()
             break;
         default:
             puts("Opcion invalida");
+            system("pause");
             break;
         }
     }while(opcion != 7);
@@ -175,7 +188,8 @@ long keyPartido(FILE*pf,int key)
     return posReg;
 }
 int altaPartido()
-{   Partidos par;
+{   Partidos nuevo;
+
     int op;
     FILE*ptr = fopen("Partidos.dat","a+b");
     if (ptr == NULL) {
@@ -183,55 +197,48 @@ int altaPartido()
         return -1;
     }
     do
-    {   fseek(ptr,0,SEEK_END);
-        long tam = ftell(ptr)/sizeof(Partidos);
-        if (tam == maxPartidos)
-        {   puts("No se puede agregar mas partidos");
-            system("pause");
-            return -1;
+    {
+        if (keyPartido(ptr, nuevo.codigo) != -1)
+        {
+            system("cls");
+            printf("ID existente.\n");
         }
-        printf("\nIngrese el Codigo del partido: ");
+        printf("ID >> ");
         fflush(stdin);
-        scanf("%d",&par.codigo);
-        if (keyPartido(ptr,par.codigo) == -1)
-        {   printf("Ingrese el Nombre del Partido: ");
-            fflush(stdin);
-            gets(par.nombrePartido);
-        }
-        else
-        {   printf("\nYa existe un partido con este codigo\n");
-           system("pause");
-           return -1;
-        }
-        fseek(ptr,0,SEEK_END);
-        int falla = fwrite(&par,sizeof(Partidos),1,ptr);
-        if (falla != 1)
-        {   puts("error de escritura");
-            return -1;
-        }
-        fflush(ptr);
-        printf("\nQuieres ingresar otro partido SI/1 NO/0\nOpcion: ");
-        scanf("%d",&op);
-    }while(op == 1);
+        scanf("%li", &nuevo.codigo);
+        printf("\n");
+
+    }while( keyPartido(ptr, nuevo.codigo) != -1);
+
+    printf("Nombre (max. %i caracteres)\n>> ", sizeof(nuevo.nombrePartido));
+    fflush(stdin);
+    gets(nuevo.nombrePartido);
+    printf("\n");
+
+    fwrite(&nuevo, sizeof(Partidos), 1, ptr);
     fclose(ptr);
     return 0;
 }
 
 int listarPartidos ()
-{   Partidos par;
-    FILE*pf = fopen("Partidos.dat","rb");
+{
+    Partidos par;
+    FILE *pf = fopen("Partidos.dat","rb");
     if (pf == NULL)
-    {   puts("error al abrir el archivo"); system("pause");
+    {
+        puts("error al abrir el archivo");
+        system("pause");
         return -1;
     }
     fseek(pf,0,SEEK_SET);
+
     fread(&par,sizeof(Partidos),1,pf);
+
     printf("CODIGO   |   NOMBRE DEL PARTIDO                             ");
     while(!feof(pf))
-    {   if (par.Borrado != 1)
-        {   printf("\n   %i     |   %s                                             ",par.codigo, par.nombrePartido);
-            fread(&par,sizeof(Partidos),1,pf);
-        }
+    {
+        printf("\n   %i     |   %s                                             ",par.codigo, par.nombrePartido);
+        fread(&par,sizeof(Partidos),1,pf);
     }
     printf("\n");
     system("pause");
@@ -497,6 +504,12 @@ int limpiarMesa()
     }
     fclose(pf1);
     fclose(pf);
+
+    if (access("Mesas.dat", F_OK) != 0) {
+        printf("\nEl archivo Mesas.dat no existe o no es accesible.\n");
+        return -1;
+    }
+
     if( remove("Mesas.dat") == 0)
     {   printf("\nSe elimino Mesas.dat\n");
         if ( rename("TemporalMesa.tmp", "Mesas.dat") == 0)
@@ -555,18 +568,23 @@ int escribirMesa()
     }
     /* Ingreso de votos */
     printf("\nIngrese la cantidad de votos de cada partido\n ");
+    printf("\nFormulario de ingreso de votos\n");
+
     for (i =0; i < cant_par; i++)
     {   int votos_presi, votos_gob;
-        printf("Partido [%li]\n", mesa.par[i].codigo);
-        printf("Nombre [%s]\n", mesa.par[i].nombrePartido);
+        printf("\nID Partido\t\tNombre\n");
+        printf("[%li]\t\t%s\n", mesa.par[i].codigo, mesa.par[i].nombrePartido);
+
         printf("\nVotos a Presidente: ");
         fflush(stdin);
         scanf("%i", &votos_presi);
         mesa.par[i].cant_votos_presi = votos_presi;
+
         printf("\nVotos a Gobernador: ");
         fflush(stdin);
         scanf("%i", &votos_gob);
         mesa.par[i].cant_votos_gober = votos_gob;
+
         accum += mesa.par[i].cant_votos_presi;
         accum += mesa.par[i].cant_votos_gober;
     }
@@ -604,18 +622,27 @@ int mostrarMesas()
     Partidos par;
     fseek(ptr_P,0,SEEK_END);
     long cant_par = ftell(ptr_P)/sizeof(Partidos);
+
     fseek(ptr_M,0,SEEK_SET);
     int falla = fread(&mesa,sizeof(mesas),1,ptr_M);
     if (falla != 1)
     {   puts("error de lectura");
         return -1;
     }
-    printf("[ID_M]\t[ID_P1]\t[V_P1]\t[V_G1]\t[ID_P2]\t[V_P2]\t[V_G2]\t[ID_P3]\t[V_P3]\t[V_G3]\t[ID_P4]\t[V_P4]\t[V_G4]\n");
+    int p;
+    printf("[ID_M]");
+    for (p=0; p < cant_par; p++)
+        printf("\t[ID_P%i]\t[V_P%i]\t[V_G%i]\t", p+1, p+1, p+1);
+    printf("\n");
     while(!feof(ptr_M))
-    {   printf("%li",mesa.nroMesa);
-        for (int i=0; i< cant_par; i++)
-            printf("\t%i\t%li\t%li", mesa.par[i].codigo, mesa.par[i].cant_votos_presi, mesa.par[i].cant_votos_gober);
-        printf("\n");
+    {
+        if (mesa.borrado != 1)
+        {
+            printf("%li",mesa.nroMesa);
+            for (int i=0; i< cant_par; i++)
+                printf("\t%i\t%li\t%li\t", mesa.par[i].codigo, mesa.par[i].cant_votos_presi, mesa.par[i].cant_votos_gober);
+            printf("\n");
+        }
         fread(&mesa,sizeof(mesas),1,ptr_M);
     }
     fclose(ptr_M);
@@ -632,37 +659,45 @@ int Baja_Mesa() // Baja lógica de la mesa
     mesas mesa;
     long int cod_mesa;
     long int pos;
-    do
-    {   printf("\nIngresa en numero de mesa: ");
-        fflush(stdin);
-        scanf("%li",&cod_mesa);
-        pos = keyMesas(ptr_M,cod_mesa);
-        if (pos == -1)
-        {   puts("Mesa inexistente");
-            system("pause");
-        }
-
-    } while(pos == -1);
-    fseek(ptr_M,pos,SEEK_SET);
-    int falla = fread(&mesa,sizeof(mesas),1,ptr_M);
-    if (falla != 1)
-    {   puts("error de lectura");
-        return -1;
-    }
-    printf("\nNro. de Mesa: [%li]",mesa.nroMesa);
-    printf("¿\nEsta es la mesa que deseas borrar? [1]SI [0]NO\nOpcion: ");
-    fflush(stdin);
-    scanf("%d",&op1);
-    if(op1 == 0)
-       return -1;
-    else
-    {   mesa.borrado = 1;
+    fseek(ptr_M,pos,SEEK_END);
+    long cant_mesas = ftell(ptr_M) / sizeof(mesas);
+    if (cant_mesas > 0) {
+        do
+        {   printf("\nIngresa en numero de mesa: ");
+            fflush(stdin);
+            scanf("%li",&cod_mesa);
+            pos = keyMesas(ptr_M,cod_mesa);
+            if (pos == -1)
+            {   puts("Mesa inexistente");
+                system("pause");
+            }
+        } while(pos == -1);
         fseek(ptr_M,pos,SEEK_SET);
-        fwrite(&mesa,sizeof(mesas),1,ptr_M);
-        fflush(ptr_M);
+        int falla = fread(&mesa,sizeof(mesas),1,ptr_M);
+        if (falla != 1)
+        {   puts("error de lectura");
+            return -1;
+        }
+        printf("\nNro. de Mesa: [%li]",mesa.nroMesa);
+        printf("¿\nEsta es la mesa que deseas borrar? [1]SI [0]NO\nOpcion: ");
+        fflush(stdin);
+        scanf("%d",&op1);
+        if(op1 == 0)
+           return -1;
+        else
+        {   mesa.borrado = 1;
+            fseek(ptr_M,pos,SEEK_SET);
+            fwrite(&mesa,sizeof(mesas),1,ptr_M);
+            fflush(ptr_M);
+        }
+        fclose(ptr_M);
+        limpiarMesa(); // Proceso de baja fisica
     }
-    fclose(ptr_M);
-    limpiarMesa(); // Proceso de baja fisica
+    else {
+        printf("No hay mesas para borrar...\n");
+        system("pause");
+    }
+
     return 0;
 }
 int info_Mesa()
@@ -728,6 +763,7 @@ int info_Mesa()
 int ordenar_mesas()
 {   int long i,j,index;
     mesas mesa;
+
     FILE*ptr_mesas = fopen("Mesas.dat","r+b");
     if (ptr_mesas == NULL)
     {   puts("error de apertura");
@@ -755,13 +791,20 @@ int ordenar_mesas()
         }
     }
     for(i=1;i<cant_mesas;i++)
-    {   index = aux[i].nroMesa;
-        j = i - 1;
-        while(j >= 0 && aux[j].nroMesa > index)
-        {   aux[j+1].nroMesa = aux[j].nroMesa;
+    {
+        mesas primera = aux[i]; // i = 1
+        index = aux[i].nroMesa;
+        mesas auxi;
+        j = i - 1; // j = 0
+        while(j >= 0 && aux[j].nroMesa > index) // j = 0 index = ?
+        {
+            auxi = aux[i];
+            aux[i] = aux[j];
+            aux[j] = auxi;
+//            aux[j+1].nroMesa = aux[j].nroMesa;
             j--;
         }
-        aux[j+1].nroMesa = index;
+//        aux[j+1].nroMesa = index;
     }
     fseek(ptr_mesas,0,SEEK_SET);
     for (i=0;i<cant_mesas;i++)
@@ -769,139 +812,32 @@ int ordenar_mesas()
     fclose(ptr_mesas);
     free(aux);
 }
-long int total_votos_general()
-{   mesas reg;
-	FILE *ptr_mesas = fopen("Mesas.dat", "rb");
-	if (ptr_mesas == NULL)
-    {   printf("\nNo se pudo conectar con el archivo Mesas.dat\n");
-        return -1;
-    }
-    long int total_votos = 0;
-    int k;
-    fseek(ptr_mesas, 0, SEEK_SET);
-    fread(&reg,sizeof(mesas),1,ptr_mesas);
-    while (!feof(ptr_mesas))
-    {   total_votos += reg.votos;
-        fread(&reg,sizeof(mesas),1,ptr_mesas);
-    }
-    fclose(ptr_mesas);
-    return total_votos;
-}
 
-long int total_votos_presidente_general()
-{   mesas reg;
-	FILE *ptr_mesas = fopen("Mesas.dat", "rb");
-	if (ptr_mesas == NULL)
-    {   printf("\nNo se pudo conectar con el archivo Mesas.dat\n");
-        return -1;
-    }
-    long int total_votos_presi = 0;
-    int k;
-    fseek(ptr_mesas, 0, SEEK_SET);
-    fread(&reg,sizeof(mesas),1,ptr_mesas);
-    while (!feof(ptr_mesas))
-    {   k=0;
-        long int total_votos_presi_x_mesa=0;
-        int cant_part = sizeof(reg.par) / sizeof(reg.par[0]);
-        while (k < cant_part)
-        {   total_votos_presi_x_mesa += reg.par[k].cant_votos_presi;
-            k++;
-        }
-        total_votos_presi += total_votos_presi_x_mesa;
-        fread(&reg,sizeof(mesas),1,ptr_mesas);
-    }
-    fclose(ptr_mesas);
-    return total_votos_presi;
-}
-
-long int total_votos_gobernador_general()
-{   mesas reg;
-	FILE *ptr_mesas = fopen("Mesas.dat", "rb");
-	if (ptr_mesas == NULL)
-    {   printf("\nNo se pudo conectar con el archivo Mesas.dat\n");
-        return -1;
-    }
-    long int total_votos_gober = 0;
-    int k;
-    fseek(ptr_mesas, 0, SEEK_SET);
-    fread(&reg,sizeof(mesas),1,ptr_mesas);
-    while (!feof(ptr_mesas))
-    {   k=0;
-        long int total_votos_gober_x_mesa=0;
-        int cant_part = sizeof(reg.par) / sizeof(reg.par[0]);
-        while (k < cant_part)
-        {   total_votos_gober_x_mesa += reg.par[k].cant_votos_gober;
-            k++;
-        }
-        total_votos_gober += total_votos_gober_x_mesa;
-        fread(&reg,sizeof(mesas),1,ptr_mesas);
-    }
-    fclose(ptr_mesas);
-    return total_votos_gober;
-}
 
 int Resultados() {
-    long int total_votos_presi = total_votos_presidente_general();
-    long int total_votos_gober = total_votos_gobernador_general();
-    long int total_votos_gen = total_votos_general();
-    long int mayor_presi = 0;
-    long int mayor_gober=0;
-    mesas reg;
-    Partidos par_aux[maxPartidos];
-    Partidos ganador_presi;
-    Partidos ganador_gober;
-    for (int i=0;i < maxPartidos; i++)
-    {   par_aux[i].cant_votos_presi = 0;
-        par_aux[i].cant_votos_gober = 0;
-    }
     FILE *ptr_mesas = fopen("Mesas.dat", "rb");
-    if (ptr_mesas == NULL)
-    {   printf("Error al abrir el archivo Mesas.dat como rb\n");
-        system("pause");
+    if (ptr_mesas == NULL) {
+        system("cls");
+        printf("No se pudo abrir el archivo Mesas.dat\n");
         return -1;
     }
-    system("cls");
-    printf("Total de votos: %li\n", total_votos_gen);
-    printf("Total de votos para Presidente: %li\n", total_votos_presi);
-    printf("Total de votos para Gobernador: %li\n", total_votos_gober);
+    mesas reg;
+
+    long int total_votos_presidente = 0;
+
     fread(&reg, sizeof(mesas), 1, ptr_mesas);
-    while(!feof(ptr_mesas))
-    {   for (int k =0; k < maxPartidos; k++)
-        {   strcpy(par_aux[k].nombrePartido, reg.par[k].nombrePartido);
-            par_aux[k].cant_votos_presi += reg.par[k].cant_votos_presi;
-            par_aux[k].cant_votos_gober += reg.par[k].cant_votos_gober;
+    while (!feof(ptr_mesas)) {
+        int i;
+        int pasadas;
+        for (i=0; i < maxPartidos; i++)
+        {
+            Partidos aux = reg.par[i];
+            printf("%li", aux.codigo);
+
         }
         fread(&reg, sizeof(mesas), 1, ptr_mesas);
     }
-    printf("PARTIDO     |     PRESIDENTE  \n");
-    for (int i=0; i < maxPartidos; i++)
-        printf("%s          |  %li [%.2f%c]      \n", par_aux[i].nombrePartido,par_aux[i].cant_votos_presi, ((float)par_aux[i].cant_votos_presi*100)/(float)total_votos_presi, 37);
-    printf("\n\n");
-    printf("PARTIDO     |     GOBERNADOR  \n");
-    for (int i=0; i < maxPartidos; i++)
-        printf("%s          |  %li [%.2f%c]      \n", par_aux[i].nombrePartido,par_aux[i].cant_votos_gober, ((float)par_aux[i].cant_votos_gober*100)/(float)total_votos_gober, 37);
-    system("pause");
-    // Algoritmo Presidente ganador
-     for (int j= 0; j < maxPartidos; j++){
-        if (par_aux[j].cant_votos_presi > mayor_presi){
-            mayor_presi = par_aux[j].cant_votos_presi;
-            ganador_presi = par_aux[j];
-        }
-     }
-     for (int j= 0; j < maxPartidos; j++){
-        if (par_aux[j].cant_votos_gober > mayor_gober){
-            mayor_gober = par_aux[j].cant_votos_gober;
-            ganador_gober = par_aux[j];
-        }
-     }
-    system("cls");
-    printf("GANADORES\n\n");
-    printf("Eleccion Presidencial\n\n");
-    printf("%s\t con el [%.2f%c] de los votos.\n", ganador_presi.nombrePartido, (((float)ganador_presi.cant_votos_presi*100)/(float)total_votos_presi), 37);
-    printf("\n");
-    printf("Eleccion de Gobernador\n\n");
-    printf("%s\t con el [%.2f%c] de los votos.\n", ganador_gober.nombrePartido, (((float)ganador_gober.cant_votos_gober*100)/(float)total_votos_gober), 37);
-    printf("\n");
+
     system("pause");
     return 0;
 }
