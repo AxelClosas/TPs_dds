@@ -182,7 +182,8 @@ void encabezado(int espacio_izq, int op)
         printf(" ");
         printf("%s",procesos); // n letras
         printf(" ");
-        rellenar = espacio_interior - cant_ascii_lateral - cant_ascii_lateral - espacio_izq - 2 - t_procesos ; // El num en la formula es la cant. de printf(" ");        for (i=0; i < rellenar; i++)
+        rellenar = espacio_interior - cant_ascii_lateral - cant_ascii_lateral - espacio_izq - 2 - t_procesos ; // El num en la formula es la cant. de printf(" ");
+        for (i=0; i < rellenar; i++)
             printf("%c", 176);
         printf("%c", 186);
         break;
@@ -416,7 +417,8 @@ int cantidad_partidos_activos()
         printf("No se pudo abrir el archivo Partidos.dat");
         return -1;
     }
-    fread(&reg, sizeof(PARTIDO), 1, arch);
+
+    fread(&reg, sizeof(PARTIDO), 1, arch);
     while(!feof(arch))
     {
         if (reg.activo == 1) cant++;
@@ -525,13 +527,18 @@ void listar_mesas()
     }
     fseek(arch, 0, SEEK_SET);
     fread(&reg, sizeof(MESA), 1, arch);
+
+    int p;
+    printf("[ID_M]");
+    for (p=0; p < cant_part; p++)    
+        printf("\t[ID_P%i]\t[V_P%i]\t[V_G%i]\t", p+1, p+1, p+1);
+    printf("\n");
     while (!feof(arch))
     {
         int i;
-        printf("\n------------------------------\n");
-        printf("MESA [%li]\n", reg.id);
-
-        printf("ID PARTIDO -- NOMBRE DE PARTIDO\n");
+        // printf("\n------------------------------\n");
+        printf("[%li]", reg.id);
+        // printf("ID PARTIDO -- NOMBRE DE PARTIDO\n");
         for (i=0; i < cant_part; i++)
         {
             printf("    %i     ", reg.lista_partidos[i].id);
@@ -548,7 +555,8 @@ int mostrar_datos(PARTIDO *reg)
     int confirmar;
     system("cls");
     printf("Partido seleccionado\n");
-    printf("ID [%li]\n", reg->id);    printf("NOMBRE: %s\n", reg->nombre);
+    printf("ID [%li]\n", reg->id);
+    printf("NOMBRE: %s\n", reg->nombre);
     printf("\nConfirmas la seleccion?\n\t[1] SI\n\t[0] NO\n>> ");
     fflush(stdin);
     scanf("%i", &confirmar);
