@@ -24,6 +24,15 @@ typedef struct Mesa
     int borrado;
 }mesas;
 
+typedef struct ResultadoGeneral
+{
+    long int codPartido;
+    char nombrePartido[100];
+    long int totalVotos;
+
+} RGeneral;
+
+
 // partidos
 int altaPartido(); // OK
 long keyPartido(FILE*pf,int key); // OK
@@ -85,8 +94,8 @@ int menu2()
         printf("\n[2]. Listar Mesas");
         printf("\n[4]. Relevamiento de Mesa"); // Relevamiento de mesas: Permitir ver información de una mesa en particular ordenado de mayor a menor según la cantidad de votos de cada cargo y poniendo el porcentaje correspondiente.
         printf("\n[5]. Borrar Mesa");
-        printf("\n[6]. Resultado");
-        printf("\n[7]. salir\nOpcion: ");
+        printf("\n[6]. Resultado"); printf("\n");
+        printf("\n[7]. Regresar al menu anterior\n\nOpcion: ");
         fflush(stdin);
         scanf("%d",&opcion);
         if (opcion == 5)
@@ -154,8 +163,8 @@ int main()
                     Resultados();
                     break;
                 case 7:
-                    printf("\nSaliendo...\n");
-                    system("pause");
+//                    printf("\nSaliendo...\n");
+//                    system("pause");
                     break;
                 default :
                     printf("\nOpcion invalida");
@@ -254,6 +263,8 @@ int listarPartidos ()
     fclose(pf);
     return 0;
 }
+
+
 int actualizar_mesas()
 {   mesas reg;
     Partidos reg_p;
@@ -262,6 +273,12 @@ int actualizar_mesas()
     {   printf("No se pudo abrir el archivo Mesas.dat. Comprueba si existe.");
         return -1;
     }
+    FILE *ptr_mesas_temp  = fopen("Mesas_Temp.tmp", "w+b");
+    if (ptr_mesas_temp == NULL)
+    {   printf("No se pudo abrir el archivo Mesas.dat. Comprueba si existe.");
+        return -1;
+    }
+
     FILE *ptr_part = fopen("Partidos.dat", "rb");
     if (ptr_mesas == NULL)
     {   printf("No se pudo abrir el archivo Partidos.dat. Comprueba si existe.");
@@ -280,9 +297,32 @@ int actualizar_mesas()
                 fread(&reg_p, sizeof(Partidos), 1, ptr_part);
             }
         }
+        /* Volcar el registro en un archivo */
+        fflush(stdin);
+        fwrite(&reg, sizeof(mesas), 1, ptr_mesas_temp);
         fread(&reg, sizeof(mesas), 1, ptr_mesas);
     }
     fclose(ptr_mesas);
+    fclose(ptr_mesas_temp);
+
+
+    if (access("Mesas.dat", F_OK) != 0) {
+        printf("\nEl archivo Mesas.dat no existe o no es accesible.\n");
+        return -1;
+    }
+
+    if( remove("Mesas.dat") == 0)
+    {   printf("\nSe elimino Mesas.dat\n");
+        if ( rename("Mesas_Temp.tmp", "Mesas.dat") == 0)
+            printf("\nSe renombró Mesas_Temp.tmp a Mesas.dat\n");
+        else
+            printf("\nNo se pudo renombrar el archivo Mesas_Temp.tmp\n");
+    }
+    else
+        puts("No se pudo eliminar Mesas.dat");
+    system("pause");
+
+
     return 0;
 }
 int modificarPar()
@@ -482,52 +522,70 @@ long keyMesas(FILE*pf,long int key)
     return posReg;
 }
 int limpiarMesa()
-{   FILE *pf = fopen("Mesas.dat", "rb");
-    if (pf == NULL)
+{
+    FILE *ptr_mesas = fopen("Mesas.dat", "rb");
+    if (ptr_mesas == NULL)
     {   printf("\nError al abrir el archivo Mesas.dat\n");
         return -1;
     }
-    FILE*pf1 = fopen("TemporalMesa.tmp","wb");
-    if (pf1 == NULL)
-    {   puts("error de apertura");
+    FILE *ptr_mesas_tmp = fopen("TemporalMesa.tmp","wb");
+    if (ptr_mesas_tmp == NULL)
+    {
+        puts("error de apertura");
+        fclose(ptr_mesas);
         return -1;
     }
+
     mesas mesa;
-    fseek(pf,0,SEEK_SET);
-    int falla = fread(&mesa,sizeof(mesas),1,pf);
+    fseek(ptr_mesas,0,SEEK_SET);
+    int falla = fread(&mesa,sizeof(mesas),1,ptr_mesas);
     if (falla != 1)
-    {   puts("error de lectura");
+    {
+        fclose(ptr_mesas);
+        fclose(ptr_mesas_tmp);
+        puts("error de lectura");
         return -1;
     }
-    while(!feof(pf))
-    {   if (mesa.borrado != 1)
-        {   fseek(pf1,0,SEEK_END);
-            int falla1 = fwrite(&mesa,sizeof(mesas),1,pf1);
+
+    while(!feof(ptr_mesas))
+    {
+        if (mesa.borrado != 1)
+        {
+            fseek(ptr_mesas_tmp,0,SEEK_END);
+            int falla1 = fwrite(&mesa,sizeof(mesas),1,ptr_mesas_tmp);
             if(falla1 != 1)
-            {   puts("error de escritura");
+            {
+                puts("error de escritura");
+                fclose(ptr_mesas_tmp);
+                fclose(ptr_mesas);
                 return -1;
             }
-            fflush(pf1);
+            fflush(ptr_mesas_tmp);
         }
-        fread(&mesa,sizeof(mesas),1,pf);
-    }
-    fclose(pf1);
-    fclose(pf);
-
-    if (access("Mesas.dat", F_OK) != 0) {
-        printf("\nEl archivo Mesas.dat no existe o no es accesible.\n");
-        return -1;
+        fread(&mesa,sizeof(mesas),1,ptr_mesas);
     }
 
-    if( remove("Mesas.dat") == 0)
-    {   printf("\nSe elimino Mesas.dat\n");
-        if ( rename("TemporalMesa.tmp", "Mesas.dat") == 0)
-            printf("\nSe renombró TemporalMesa.tmp a Mesas.dat\n");
-        else
-            printf("\nNo se pudo renombrar el archivo TemporalMesa.tmp\n");
-    }
+    fclose(ptr_mesas);
+    fclose(ptr_mesas_tmp);
+
+    char nombre_fmesasBAK[] = "Mesas.bak";
+    char nombre_fmesas[] = "Mesas.dat";
+    char nombre_fmesasTMP[] = "TemporalMesa.tmp";
+
+    if (remove(nombre_fmesasBAK) == 0)
+        printf("Se borro %s", nombre_fmesasBAK);
     else
-        puts("No se pudo eliminar Mesas.dat");
+        printf("\nNo se elimino %s\n", nombre_fmesasBAK);
+
+    if ( rename(nombre_fmesas, nombre_fmesasBAK) == 0 )
+        printf("\nSe renombro el archivo %s por %s\n", nombre_fmesas, nombre_fmesasBAK);
+    else
+        printf("\nNo se pudo renombrar el archivo %s\n", nombre_fmesas);
+
+
+    if ( rename(nombre_fmesasTMP, nombre_fmesas) == 0)
+        printf("Se renombro el archivo %s a %s ", nombre_fmesasTMP, nombre_fmesas);
+
     system("pause");
     return 0;
 }
@@ -679,7 +737,9 @@ int Baja_Mesa() // Baja lógica de la mesa
     long cant_mesas = ftell(ptr_M) / sizeof(mesas);
     if (cant_mesas > 0) {
         do
-        {   printf("\nIngresa en numero de mesa: ");
+        {
+            mostrarMesas();
+            printf("\nIngresa en numero de mesa: ");
             fflush(stdin);
             scanf("%li",&cod_mesa);
             pos = keyMesas(ptr_M,cod_mesa);
@@ -698,6 +758,7 @@ int Baja_Mesa() // Baja lógica de la mesa
         printf("¿\nEsta es la mesa que deseas borrar? [1]SI [0]NO\nOpcion: ");
         fflush(stdin);
         scanf("%d",&op1);
+
         if(op1 == 0)
            return -1;
         else
@@ -736,7 +797,9 @@ int info_Mesa()
     fseek(ptr_P,0,SEEK_END);
     int cant_par = ftell(ptr_P)/sizeof(Partidos);
     do
-    {   printf("\nIngrese el numero de mesa: ");
+    {
+        mostrarMesas();
+        printf("\nIngrese el numero de mesa: ");
         fflush(stdin);
         scanf("%ld",&codigo_mesa);
         long int pos = keyMesas(ptr_M,codigo_mesa);
@@ -777,32 +840,43 @@ int info_Mesa()
 }
 
 int ordenar_mesas()
-{   int long i,j,index;
+{
+    long int i,j,index;
     mesas mesa;
 
     FILE*ptr_mesas = fopen("Mesas.dat","r+b");
     if (ptr_mesas == NULL)
-    {   puts("error de apertura");
+    {
+        puts("error de apertura");
         return -1;
     }
+
     fseek(ptr_mesas,0,SEEK_END);
     int cant_mesas = ftell(ptr_mesas)/sizeof(mesas);
     fseek(ptr_mesas,0,SEEK_SET);
+
     if (cant_mesas <= 1)
-    {   puts("Mesas insuficientes para ordenar");
+    {
+        puts("Mesas insuficientes para ordenar");
+        fclose(ptr_mesas);
         return -1;
     }
+
     mesas *aux = (mesas*)malloc(cant_mesas*sizeof(mesas));
     if (aux == NULL)
-    {   puts("error al asignar memoria");
+    {
+        fclose(ptr_mesas);
+        puts("error al asignar memoria");
         return -1;
     }
+
     for (i=0;i<cant_mesas;i++)
     {   int falla = fread(&aux[i],sizeof(mesas),1,ptr_mesas);
         if (falla != 1)
-        {   free(aux);
-            fclose(ptr_mesas);
+        {
             puts("error de lectura");
+            free(aux);
+            fclose(ptr_mesas);
             return -1;
         }
     }
@@ -814,19 +888,17 @@ int ordenar_mesas()
         j = i - 1; // j = 0
         while(j >= 0 && aux[j].nroMesa > index) // j = 0 index = ?
         {
-            auxi = aux[i];
-            aux[i] = aux[j];
-            aux[j] = auxi;
-//            aux[j+1].nroMesa = aux[j].nroMesa;
+            aux[j+1] = aux[j];
             j--;
         }
-//        aux[j+1].nroMesa = index;
+        aux[j+1] = primera;
     }
     fseek(ptr_mesas,0,SEEK_SET);
     for (i=0;i<cant_mesas;i++)
        fwrite(&aux[i],sizeof(mesas),1,ptr_mesas);
     fclose(ptr_mesas);
     free(aux);
+    return 0;
 }
 
 
@@ -840,19 +912,30 @@ int Resultados() {
     mesas reg;
 
     long int total_votos_presidente = 0;
+    long int total_votos_gobernador = 0;
 
     fread(&reg, sizeof(mesas), 1, ptr_mesas);
     while (!feof(ptr_mesas)) {
         int i;
-        int pasadas;
         for (i=0; i < maxPartidos; i++)
         {
             Partidos aux = reg.par[i];
-            printf("%li\n", aux.codigo);
+            if (aux.Borrado != 1)
+            {
 
+                total_votos_presidente += aux.cant_votos_presi;
+                total_votos_gobernador += aux.cant_votos_gober;
+
+                printf("Nro. de Mesa: %li\n", reg.nroMesa);
+                printf("Partido %i >> %li\n",i+1, aux.codigo);
+
+            }
         }
         fread(&reg, sizeof(mesas), 1, ptr_mesas);
     }
+
+    printf("total votos PRESIDENTE post asignacion: %li\n", total_votos_presidente);
+    printf("total votos GOBERNADOR post asignacion: %li\n", total_votos_presidente);
 
     system("pause");
     return 0;
