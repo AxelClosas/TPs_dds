@@ -126,9 +126,12 @@ int main()
         case 1:
             do
             {
-                altaPartido();
-                printf("\nCargar otro partido? [1.SI / 0.NO]\n\n>> ");
-                scanf("%i", &otro_part);
+                if ( altaPartido() != -1) {
+                    printf("\nCargar otro partido? [1.SI / 0.NO]\n\n>> ");
+                    scanf("%i", &otro_part);
+                }
+                else
+                    break;
             }while(otro_part);
             break;
         case 2:
@@ -205,6 +208,24 @@ int altaPartido()
         puts("error al abrir el archivo");
         return -1;
     }
+    FILE *ptr_mesas = fopen("Mesas.dat", "rb");
+    if (ptr_mesas == NULL) {
+        puts("Error al archivo el archivo Mesas.dat");
+        fclose(ptr);
+        return -1;
+    }
+    fseek(ptr_mesas, 0,SEEK_END);
+
+    long int cant_mesas = ftell(ptr_mesas) / sizeof(mesas);
+
+    if (cant_mesas > 0) {
+        puts("No es posible crear un partido nuevo con Mesas ya creadas.");
+        system("pause");
+        fclose(ptr);
+        fclose(ptr_mesas);
+        return -1;
+    }
+    fclose(ptr_mesas);
     unsigned long int cod = keyPartido(ptr, nuevo.codigo);
     do
     {
@@ -568,24 +589,27 @@ int limpiarMesa()
     fclose(ptr_mesas);
     fclose(ptr_mesas_tmp);
 
-    char nombre_fmesasBAK[] = "Mesas.bak";
     char nombre_fmesas[] = "Mesas.dat";
     char nombre_fmesasTMP[] = "TemporalMesa.tmp";
 
-    if (remove(nombre_fmesasBAK) == 0)
-        printf("Se borro %s", nombre_fmesasBAK);
+    if (remove("Mesas.dat") == 0)
+    {
+        printf("\nSe eliminó Mesas.dat\n");
+        if (rename("TemporalMesa.tmp", "Mesas.dat") == 0)
+        {
+            printf("\nSe renombró TemporalMesa.tmp a Mesas.dat\n");
+        }
+        else
+        {
+            printf("\nNo se pudo renombrar el archivo TemporalMesa.tmp\n");
+            return -1;
+        }
+    }
     else
-        printf("\nNo se elimino %s\n", nombre_fmesasBAK);
-
-    if ( rename(nombre_fmesas, nombre_fmesasBAK) == 0 )
-        printf("\nSe renombro el archivo %s por %s\n", nombre_fmesas, nombre_fmesasBAK);
-    else
-        printf("\nNo se pudo renombrar el archivo %s\n", nombre_fmesas);
-
-
-    if ( rename(nombre_fmesasTMP, nombre_fmesas) == 0)
-        printf("Se renombro el archivo %s a %s ", nombre_fmesasTMP, nombre_fmesas);
-
+    {
+        puts("No se pudo eliminar Mesas.dat");
+        return -1;
+    }
     system("pause");
     return 0;
 }
@@ -844,7 +868,7 @@ int ordenar_mesas()
     long int i,j,index;
     mesas mesa;
 
-    FILE*ptr_mesas = fopen("Mesas.dat","r+b");
+    FILE *ptr_mesas = fopen("Mesas.dat","r+b");
     if (ptr_mesas == NULL)
     {
         puts("error de apertura");
@@ -896,8 +920,9 @@ int ordenar_mesas()
     fseek(ptr_mesas,0,SEEK_SET);
     for (i=0;i<cant_mesas;i++)
        fwrite(&aux[i],sizeof(mesas),1,ptr_mesas);
-    fclose(ptr_mesas);
+
     free(aux);
+    fclose(ptr_mesas);
     return 0;
 }
 
@@ -913,6 +938,8 @@ int Resultados() {
 
     long int total_votos_presidente = 0;
     long int total_votos_gobernador = 0;
+
+
 
     fread(&reg, sizeof(mesas), 1, ptr_mesas);
     while (!feof(ptr_mesas)) {
